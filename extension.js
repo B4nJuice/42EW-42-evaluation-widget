@@ -80,8 +80,10 @@ function get_api_data_with_cookie(url, cookie, callback) {
     session.queue_message(message, (sess, msg) => {
         if (msg.status_code === 200) {
             try {
-				log(`[42EW] ${msg.status_code}`);
-				log(`[42EW] ${msg.response_headers.get_one("Location")}`);
+				log(`[42EW] STATUS: ${msg.status_code}`);
+				log(`[42EW] Content-Type: ${msg.response_headers.get_one("Content-Type")}`);
+				log(`[42EW] Content-Length: ${msg.response_headers.get_one("Content-Length")}`);
+				log(`[42EW] Transfer-Encoding: ${msg.response_headers.get_one("Transfer-Encoding")}`);
                 callback(null, msg);
             } catch (e) {
                 callback(new Error(`Failed to parse JSON: ${e.message}`));
