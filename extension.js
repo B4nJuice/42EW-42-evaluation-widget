@@ -1,3 +1,5 @@
+const { log } = require("node:console");
+
 const Clutter = imports.gi.Clutter;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Gio = imports.gi.Gio;
@@ -78,32 +80,17 @@ function get_api_data_with_cookie(url, cookie, callback) {
     }
 
     session.queue_message(message, (sess, msg) => {
-        const status = msg.status_code;
-        const bodyStr = (() => {
-            try { return imports.byteArray.toString(msg.response_body.data); }
-            catch (e) { return ''; }
-        })();
-
-        log(`[42EW] GET ${url} -> ${status}`);
-        log(`[42EW] content-type: ${msg.response_headers.get_one && msg.response_headers.get_one('content-type')}`);
-        log(`[42EW] body preview: ${bodyStr.slice(0, 500)}`);
-
-        if (status === 200) {
+        if (msg.status_code === 200) {
             try {
-                const ct = msg.response_headers.get_one && msg.response_headers.get_one('content-type') || '';
-                if (ct.includes('application/json')) {
-                    callback(null, JSON.parse(bodyStr));
-                } else {
-                    // HTML or other — return raw string so caller can inspect
-                    callback(null, bodyStr);
-                }
+				log(`[42EW] ${JSON.stringify(msg)}`)
+                callback(null, msg.response_body.data);
             } catch (e) {
-                callback(new Error(`Failed to parse response: ${e.message}`));
+                callback(new Error(`Failed to parse JSON: ${e.message}`));
             }
-        } else if (status === 401) {
+        } else if (msg.status_code === 401) {
             callback(new Error('Unauthorized: invalid/expired cookie'));
         } else {
-            callback(new Error(`HTTP error ${status}: ${msg.reason_phrase}`));
+            callback(new Error(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`));
         }
     });
 }
@@ -330,34 +317,26 @@ function test() {
 }
 
 function get_api_data(url, token, callback) {
-    let session = new Soup.Session();
-    let message = Soup.Message.new('GET', url);
+	let session = new Soup.Session();
+	let message = Soup.Message.new('GET', url);
 
-    message.request_headers.append('Authorization', `Bearer ${token}`);
+	message.request_headers.append('Authorization', `Bearer ${token}`);
 
-    session.queue_message(message, (sess, msg) => {
-        const status = msg.status_code;
-        const bodyStr = (() => {
-            try { return imports.byteArray.toString(msg.response_body.data); }
-            catch (e) { return ''; }
-        })();
-
-        log(`[42EW] GET ${url} -> ${status}`);
-        log(`[42EW] body preview: ${bodyStr.slice(0, 500)}`);
-
-        if (status === 200) {
-            try {
-                const json = JSON.parse(bodyStr);
-                callback(null, json);
-            } catch (e) {
-                callback(new Error(`Failed to parse JSON: ${e.message}`));
-            }
-        } else if (status === 401) {
-            callback(new Error('Unauthorized: Invalid or expired token'));
-        } else {
-            callback(new Error(`HTTP error ${status}: ${msg.reason_phrase}`));
-        }
-    });
+	session.queue_message(message, (sess, msg) => {
+		if (msg.status_code === 200) {
+			try {
+				let data = JSON.parse(msg.response_body.data);
+				callback(data);
+			} catch (e) {
+				log(`Failed to parse JSON: ${e.message}`);
+			}
+		} else if (msg.status_code === 401) {
+			log(`Unauthorized: Invalid or expired token.`);
+			callback(401);
+		} else {
+			log(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`);
+		}
+	});
 }
 
 function disable() {
