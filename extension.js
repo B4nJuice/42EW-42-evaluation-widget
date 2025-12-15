@@ -3,10 +3,21 @@ const St = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const Main = imports.ui.main;
 
+const ExtensionUtils = imports.misc.extensionUtils;
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+const Me = ExtensionUtils.getCurrentExtension();
+const Calendar = imports.ui.calendar;
+const PopupMenu = imports.ui.popupMenu;
+const Soup = imports.gi.Soup;
+const ByteArray = imports.byteArray;
+
+const { Connect } = Me.imports.connect.connect;
+
 let _indicator = null;
 
 function init() {
-	// no initialization required for this minimal extension
+	
 }
 
 function enable() {
@@ -32,6 +43,10 @@ function enable() {
 
 	// add to center of panel
 	Main.panel.addToStatusArea('42EW@B4nJuice', _indicator, 0, 'center');
+
+	Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
+		console.log(token);
+	});
 }
 
 function disable() {
