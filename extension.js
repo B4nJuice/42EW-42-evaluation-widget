@@ -291,26 +291,9 @@ function _checkCookieFileRepeatedly() {
 function test() {
     // si on a déjà un cookie de session, privilégier la requête avec cookie
     if (_intraCookie) {
-
-		(async () => {
-		try {
-			let response = await fetch(url, {
-				method: "GET",
-				headers: {
-					"Cookie": `_intra_42_session_production=${_intraCookie}`,
-					"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0",
-					"Accept": "text/html",
-					"Accept-Encoding": "identity"
-				}
-			});
-
-			let text = await response.text();
-			log(`[42EW] ${text}`);
-		} catch (e) {
-			log("[42EW] Fetch error: " + e.message);
-			}
-		})()
-
+		GLib.spawn_command_line_async(
+			`node /home/lgirard/.local/share/gnome-shell/extensions/42EW@B4nJuice/fetch.js ${cookie}`
+		);
         // get_api_data_with_cookie(`https://intra.42.fr/users/${username}`, _intraCookie, (err, data) => {
         //     if (!err && data) {
         //         log(`[42EW] user via cookie: ${JSON.stringify(data.response_body)}`);
@@ -325,7 +308,7 @@ function test() {
         //         log(`[42EW] cookie request failed: ${err && err.message}`);
         //     }
         // });
-        return;
+        // return;
     }
 
     // otherwise try to get an access token
