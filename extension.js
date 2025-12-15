@@ -53,14 +53,14 @@ function enable() {
 	// automatically open login window on enable
 	log("[42EW] widget chargé");
 	_executeCookieCapture();
-	// Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
-	// 	if (token) {
-	// 		const apiUrl = `https://api.intra.42.fr/v2/me`;
-	// 		get_api_data(apiUrl, token, (data)=> {
-	// 			log(JSON.stringify(data));
-	// 		});
-	// 	}
-	// });
+	Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
+		if (token) {
+			const apiUrl = `https://api.intra.42.fr/v2/me`;
+			get_api_data(apiUrl, token, (data)=> {
+				log(`[42EW] ${JSON.stringify(data)}`);
+			});
+		}
+	});
 }
 
 function get_api_data(url, token, callback) {
