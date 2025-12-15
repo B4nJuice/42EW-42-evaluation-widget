@@ -1,12 +1,9 @@
 {
   "uuid": "42EW@B4nJuice",
-  "name": "42EW",
-  "description": "Create GNOME Shell extensions in seconds",
-  "shell-version": [
-    "45",
-    "46",
-    "47",
-    "48",
-    "49"
-  ]
+  "name": "Logtime Widget",
+  "description": "A simple widget to check your {current logtime of the month}/{intended logtime of the month}.",
+  "shell-version": ["42"],
+  "stylesheet": "stylesheet.css",
+  "version": 1,
+  "settings-schema": "org.gnome.shell.extensions.logtimewidget"
 }
