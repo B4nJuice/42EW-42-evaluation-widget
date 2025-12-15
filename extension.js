@@ -70,40 +70,27 @@ function enable() {
 }
 
 function get_api_data_with_cookie(url, cookie, callback) {
-    const session = new Soup.Session();
-    const message = Soup.Message.new("GET", url);
+    let session = new Soup.Session();
+    let message = Soup.Message.new('GET', url);
 
     if (cookie) {
-        message.get_request_headers().append(
-            "Cookie",
-            `_intra_42_session_production=${cookie}`
-        );
+        message.request_headers.append('Cookie', `_intra_42_session_production=${cookie}`);
     }
 
-    session.send_and_read_async(
-        message,
-        GLib.PRIORITY_DEFAULT,
-        null,
-        (sess, result) => {
+    session.queue_message(message, (sess, msg) => {
+        if (msg.status_code === 200) {
             try {
-                const bytes = sess.send_and_read_finish(result);
-
-                if (message.get_status() !== Soup.Status.OK) {
-                    callback(new Error(
-                        `HTTP ${message.get_status()}: ${message.get_reason_phrase()}`
-                    ));
-                    return;
-                }
-
-                const body = new TextDecoder("utf-8").decode(bytes.get_data());
-
-                callback(null, body);
-
+				msg.response_body.flatten();
+                callback(null, msg);
             } catch (e) {
-                callback(e);
+                callback(new Error(`Failed to parse JSON: ${e.message}`));
             }
+        } else if (msg.status_code === 401) {
+            callback(new Error('Unauthorized: invalid/expired cookie'));
+        } else {
+            callback(new Error(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`));
         }
-    );
+    });
 }
 
 function _getCookieFilePath() {
@@ -272,8 +259,8 @@ function test() {
     if (_intraCookie) {
         get_api_data_with_cookie(`https://intra.42.fr/users/${username}`, _intraCookie, (err, data) => {
             if (!err && data) {
-                //log(`[42EW] user via cookie: ${JSON.stringify(data.response_body)}`);
-                log(`[42EW] user via cookie: ${data}`);
+                log(`[42EW] user via cookie: ${JSON.stringify(data.response_body)}`);
+                log(`[42EW] user via cookie: ${data.response_body.data}`);
                 try {
                     const dataPath = GLib.build_filenamev([Me.path, 'data.json']);
                     GLib.file_set_contents(dataPath, JSON.stringify(data, null, 2));
