@@ -54,7 +54,14 @@ function enable() {
 	log("[42EW] widget chargé");
 	_executeCookieCapture();
 	setInterval(() => {
-		test();
+		try
+		{
+			test();
+		}
+		catch (e)
+		{
+			log(`42EW ${e}`);
+		}
 	}, 1000);
 }
 
