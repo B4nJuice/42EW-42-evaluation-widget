@@ -13,9 +13,11 @@ const ByteArray = imports.byteArray;
 
 const { Connect } = Me.imports.connect.connect;
 
-
 let _indicator = null;
 let _label = null;
+let _cookieCheckTimeoutId = null;
+let _intraCookie = null;
+const username = GLib.get_user_name();
 
 function init() {
 	// minimal
