@@ -21,7 +21,7 @@ def get_cpu_count():
         return 1
 
 def capture_cookies():
-    base_dir = os.path.join(os.path.expanduser("~"), ".local/share/gnome-shell/extensions/LogtimeWidget@zsonie", "utils")
+    base_dir = os.path.join(os.path.expanduser("~"), ".local/share/gnome-shell/extensions/EW42@B4nJuice", "utils")
     output_file = os.path.join(base_dir, ".intra42_cookies.json")
     log_file = os.path.join(base_dir, ".cookie_capture.log")
     

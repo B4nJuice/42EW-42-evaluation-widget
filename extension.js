@@ -10,7 +10,6 @@ const Gio = imports.gi.Gio;
 
 const Me = ExtensionUtils.getCurrentExtension();
 
-const { Debug } = Me.imports.utils.debug;
 const { Connect } = Me.imports.connect.connect;
 
 let _indicator = null;
@@ -74,16 +73,15 @@ function get_api_data(url, token, callback) {
 		if (msg.status_code === 200) {
 			try {
 				let data = JSON.parse(msg.response_body.data);
-				Debug.logSuccess(`Received JSON data:\n${JSON.stringify(data, null, 2)}`);
 				callback(data);
 			} catch (e) {
-				Debug.logError(`Failed to parse JSON: ${e.message}`);
+				log(`Failed to parse JSON: ${e.message}`);
 			}
 		} else if (msg.status_code === 401) {
-			Debug.logError(`Unauthorized: Invalid or expired token.`);
+			log(`Unauthorized: Invalid or expired token.`);
 			callback(401);
 		} else {
-			Debug.logError(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`);
+			log(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`);
 		}
 	});
 }
