@@ -150,7 +150,18 @@ function _parseCookieFromFileContent(content) {
 
 function _checkCookieValidity(cookieValue, callback) {
     // Request vers un endpoint web qui accepte les cookies de session
-    callback(true);
+    const url = `https://translate.intra.42.fr/users/${username}/locations_stats.json`;
+    let session = new Soup.Session();
+    let message = Soup.Message.new('GET', url);
+    message.request_headers.append('Cookie', `_intra_42_session_production=${cookieValue}`);
+
+    session.queue_message(message, (sess, msg) => {
+        if (msg.status_code === 200) {
+            callback(true);
+        } else {
+            callback(false);
+        }
+    });
 }
 
 function _useCookie(cookieValue) {
