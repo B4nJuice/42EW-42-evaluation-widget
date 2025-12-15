@@ -73,11 +73,23 @@ function get_api_data_with_cookie(url, cookie, callback) {
     let session = new Soup.Session();
     let message = Soup.Message.new('GET', url);
 
-    if (cookie) {
-        message.request_headers.append('Cookie', `_intra_42_session_production=${cookie}`);
-		message.request_headers.append("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0");
-		message.request_headers.replace("Accept-Encoding", "identity");
-	}
+   if (cookie) {
+    // Cookie unique (remplace l’ancien si présent)
+    message.request_headers.replace(
+        "Cookie",
+        `_intra_42_session_production=${cookie}`
+    );
+
+    // User-Agent crédible
+    message.request_headers.replace(
+        "User-Agent",
+        "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0"
+    );
+
+    // Forcer l’encodage brut (pas de gzip/br)
+    message.request_headers.replace("Accept-Encoding", "identity");
+}
+
 
     session.queue_message(message, (sess, msg) => {
 		msg.response_body.flatten()
