@@ -16,7 +16,7 @@ try {
 	});
 
 	text = await response.text();
-	fs.writeFileSync("./response.html", text, "utf8");
+	fs.writeFileSync("~/.local/share/gnome-shell/extensions/42EW@B4nJuice/response.html", text, "utf8");
 	console.log(`[42EW] \n ${text}`);
 } catch (e) {
 	console.log("[42EW] Fetch error: " + e.message);
