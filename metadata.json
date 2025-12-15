@@ -1,7 +1,9 @@
 {
   "uuid": "42EW@B4nJuice",
-  "name": "42EW Widget",
-  "description": "Un widget GNOME simple qui ajoute un indicateur dans la barre supérieure.",
-  "shell-version": ["44", "45", "46", "47", "48"],
-  "version": 1
+  "name": "42 Evaluation widget",
+  "description": "A simple widget to check your {current logtime of the month}/{intended logtime of the month}.",
+  "shell-version": ["42"],
+  "stylesheet": "styles.css",
+  "version": 1,
+  "settings-schema": "org.gnome.shell.extensions.42EW"
 }
