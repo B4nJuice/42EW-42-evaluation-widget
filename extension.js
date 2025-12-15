@@ -86,16 +86,10 @@ function get_api_data_with_cookie(url, cookie, callback) {
 				log(`[42EW] Content-Length: ${msg.response_headers.get_one("Content-Length")}`);
 				log(`[42EW] Transfer-Encoding: ${msg.response_headers.get_one("Transfer-Encoding")}`);
 
-				let i = 0;
 				let headers = [];
-
-				while (true) {
-					let name = msg.response_headers.get_nth(i, null);
-					if (!name) break;  // plus de headers
-					let value = msg.response_headers.get_one(name);
+				msg.response_headers.foreach((name, value) => {
 					headers.push(`${name}: ${value}`);
-					i++;
-				}
+				});
 				log("[42EW] All headers:\n" + headers.join("\n"));
                 callback(null, msg);
             } catch (e) {
