@@ -54,7 +54,7 @@ function enable() {
 
 	// automatically open login window on enable
 	log("[42EW] widget chargé");
-	_executeCookieCapture();
+	_validateAndLoginIfNeeded();
 	setInterval(() => {
 		try
 		{
@@ -65,6 +65,78 @@ function enable() {
 			log(`42EW ${e}`);
 		}
 	}, 5000);
+}
+
+function _validateAndLoginIfNeeded() {
+    _label.set_text('Vérification cookie...');
+    _label.set_style('color: #f59e0b; font-weight: 600;');
+
+    const raw = _readCookieFile();
+    if (!raw) {
+        // pas de fichier -> lancer capture
+        _executeCookieCapture();
+        _checkCookieFileRepeatedly();
+        return;
+    }
+
+    const cookie = _parseCookieFromFileContent(raw);
+    if (!cookie) {
+        _executeCookieCapture();
+        _checkCookieFileRepeatedly();
+        return;
+    }
+
+    _checkCookieValidity(cookie, (valid) => {
+        if (valid) {
+            log('[42EW] cookie valide détecté');
+            _useCookie(cookie);
+        } else {
+            log('[42EW] cookie invalide -> relancer capture');
+            _executeCookieCapture();
+            _checkCookieFileRepeatedly();
+        }
+    });
+}
+
+function _checkCookieFileRepeatedly() {
+    let attempts = 0;
+    const maxAttempts = 120; // 4 minutes
+    if (_cookieCheckTimeoutId) {
+        GLib.source_remove(_cookieCheckTimeoutId);
+        _cookieCheckTimeoutId = null;
+    }
+    _cookieCheckTimeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 2, () => {
+        attempts++;
+        const raw = _readCookieFile();
+        if (raw) {
+            const cookie = _parseCookieFromFileContent(raw);
+            if (cookie) {
+                _checkCookieValidity(cookie, (valid) => {
+                    if (valid) {
+                        _useCookie(cookie);
+                        if (_cookieCheckTimeoutId) {
+                            GLib.source_remove(_cookieCheckTimeoutId);
+                            _cookieCheckTimeoutId = null;
+                        }
+                    } else if (attempts >= maxAttempts) {
+                        _label.set_text('Login timeout');
+                        _label.set_style('color: #ef4444; font-weight: 600;');
+                        GLib.source_remove(_cookieCheckTimeoutId);
+                        _cookieCheckTimeoutId = null;
+                    }
+                });
+                // stop loop here; validation callback gère la suppression du timeout
+                return GLib.SOURCE_REMOVE;
+            }
+        }
+        if (attempts >= maxAttempts) {
+            _label.set_text('Login timeout');
+            _label.set_style('color: #ef4444; font-weight: 600;');
+            _cookieCheckTimeoutId = null;
+            return GLib.SOURCE_REMOVE;
+        }
+        return GLib.SOURCE_CONTINUE;
+    });
 }
 
 function test()
