@@ -3,6 +3,9 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
+// add a clear UUID constant matching metadata.json
+const EXTENSION_UUID = '42EW@B4nJuice';
+
 class WidgetIndicator extends PanelMenu.Button {
   _init() {
     super._init(0.0, '42EW Widget');
@@ -39,7 +42,8 @@ function init() {
 function enable() {
   if (!indicator) {
     indicator = new WidgetIndicator();
-    Main.panel.addToStatusArea('widget-42ew', indicator);
+    // use the extension UUID as the status area name for consistency
+    Main.panel.addToStatusArea(EXTENSION_UUID, indicator);
 
     // Indiquer visuellement et par notification que l'extension est activée
     try {
