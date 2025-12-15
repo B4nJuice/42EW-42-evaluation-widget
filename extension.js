@@ -150,7 +150,7 @@ function _parseCookieFromFileContent(content) {
 
 function _checkCookieValidity(cookieValue, callback) {
     // Request vers un endpoint web qui accepte les cookies de session
-    const url = `https://translate.intra.42.fr/users/${username}/locations_stats.json`;
+    const url = `https://api.intra.42.fr/v2/users/${username}/locations_stats`;
     let session = new Soup.Session();
     let message = Soup.Message.new('GET', url);
     message.request_headers.append('Cookie', cookieValue);
