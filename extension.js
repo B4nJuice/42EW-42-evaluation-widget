@@ -74,21 +74,48 @@ function get_api_data_with_cookie(url, cookie, callback) {
     let message = Soup.Message.new('GET', url);
 
    if (cookie) {
-    // Cookie unique (remplace l’ancien si présent)
-    message.request_headers.replace(
-        "Cookie",
-        `_intra_42_session_production=${cookie}`
-    );
+		// Cookie
+		message.request_headers.replace(
+			"Cookie",
+			`_intra_42_session_production=${cookie}; user.id=MjI5OTI3--080f9f08c52ef93e8f21c2824af7ac5fd56e5696; locale=fr; enableAprilFools=false; _mkra_stck=3b015fe7b545b3d45b3541f7b1793090%3A1765809067.9110444`
+		);
 
-    // User-Agent crédible
-    message.request_headers.replace(
-        "User-Agent",
-        "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0"
-    );
+		// User-Agent
+		message.request_headers.replace(
+			"User-Agent",
+			"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0"
+		);
 
-    // Forcer l’encodage brut (pas de gzip/br)
-    message.request_headers.replace("Accept-Encoding", "identity");
-}
+		// Accept
+		message.request_headers.replace(
+			"Accept",
+			"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+		);
+
+		// Accept-Language
+		message.request_headers.replace("Accept-Language", "en-US,en;q=0.5");
+
+		// Accept-Encoding (pas de compression)
+		message.request_headers.replace("Accept-Encoding", "identity");
+
+		// Connection
+		message.request_headers.replace("Connection", "keep-alive");
+
+		// Upgrade-Insecure-Requests
+		message.request_headers.replace("Upgrade-Insecure-Requests", "1");
+
+		// Sec-Fetch headers
+		message.request_headers.replace("Sec-Fetch-Dest", "document");
+		message.request_headers.replace("Sec-Fetch-Mode", "navigate");
+		message.request_headers.replace("Sec-Fetch-Site", "same-site");
+
+		// TE header
+		message.request_headers.replace("TE", "trailers");
+
+		// Priority (optionnel, certains serveurs ignorent)
+		message.request_headers.replace("Priority", "u=0, i");
+	}
+
 
 
     session.queue_message(message, (sess, msg) => {
