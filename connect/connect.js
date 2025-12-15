@@ -2,12 +2,12 @@
     connection functions to get access
  */
 
+const { log } = require("node:console");
+
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const GLib = imports.gi.GLib;
 const Soup = imports.gi.Soup;
-
-const { Debug } = Me.imports.utils.debug;
 
 function get_access_token(client_id, client_secret, callback) {
     let session = new Soup.Session();
@@ -27,14 +27,14 @@ function get_access_token(client_id, client_secret, callback) {
             try {
                 let response = JSON.parse(msg.response_body.data);
                 let accessToken = response.access_token;
-                Debug.logInfo(`New access token: ${accessToken}`);
+                log(`[42EW] New access token: ${accessToken}`);
                 callback(accessToken);
             } catch (e) {
-                Debug.logError(`Token parse failed: ${e.message}`);
+                log(`[42EW] Token parse failed: ${e.message}`);
                 callback(null);
             }
         } else {
-            Debug.logError(`HTTP ${msg.status_code}: ${msg.reason_phrase}`);
+            log(`[42EW] HTTP ${msg.status_code}: ${msg.reason_phrase}`);
             callback(null);
         }
     });
