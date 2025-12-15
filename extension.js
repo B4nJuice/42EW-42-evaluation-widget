@@ -9,12 +9,6 @@ const Gio = imports.gi.Gio;
 
 const Me = ExtensionUtils.getCurrentExtension();
 
-// add Connect import and (optional) client constants if exported
-const connectModule = Me.imports.connect && Me.imports.connect.connect ? Me.imports.connect.connect : null;
-const Connect = connectModule ? connectModule.Connect : null;
-const CLIENT_ID = connectModule && connectModule.CLIENT_ID ? connectModule.CLIENT_ID : null;
-const CLIENT_SECRET = connectModule && connectModule.CLIENT_SECRET ? connectModule.CLIENT_SECRET : null;
-
 let _indicator = null;
 let _label = null;
 
@@ -55,40 +49,9 @@ function enable() {
 
 	// automatically open login window on enable
 	_executeCookieCapture();
-
-	// Attempt to get token and write it to token.txt
-	if (Connect) {
-		_label.set_text('Requesting token...');
-		try {
-			Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
-				if (token) {
-					const tokenPath = GLib.build_filenamev([Me.path, 'token.txt']);
-					try {
-						GLib.file_set_contents(tokenPath, token);
-						_label.set_text('Token saved');
-						_label.set_style('color: #10b981; font-weight: 600;');
-						log(`Token written to: ${tokenPath}`);
-					} catch (e) {
-						_label.set_text('Failed to save token');
-						_label.set_style('color: #ef4444; font-weight: 600;');
-						log(`Failed to write token: ${e}`);
-					}
-				} else {
-					_label.set_text('No token received');
-					_label.set_style('color: #ef4444; font-weight: 600;');
-					log('Connect.get_access_token returned no token');
-				}
-			});
-		} catch (e) {
-			_label.set_text('Token request failed');
-			_label.set_style('color: #ef4444; font-weight: 600;');
-			log(`Error calling get_access_token: ${e}`);
-		}
-	} else {
-		_label.set_text('Connect module missing');
-		_label.set_style('color: #ef4444; font-weight: 600;');
-		log('Connect module not found at Me.imports.connect.connect');
-	}
+	Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
+		console.log(token);
+	});
 }
 
 function disable() {
