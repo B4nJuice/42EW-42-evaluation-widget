@@ -99,12 +99,29 @@ function _getCookieFilePath() {
 
 function _readCookieFile() {
     const path = _getCookieFilePath();
-    const file = Gio.File.new_for_path(path);
-    if (!file.query_exists(null)) return null;
+    log(`[42EW] _readCookieFile: trying ${path}`);
     try {
-        let [ok, contents] = file.load_contents(null);
-        if (!ok) return null;
-        return imports.byteArray.toString(contents);
+        // vérifie l'existence et le mode/owner pour debug
+        try {
+            const st = GLib.stat(path);
+            log(`[42EW] file stat: size=${st.size}, mode=${st.mode.toString(8)}, uid=${st.uid}`);
+        } catch (e) {
+            log(`[42EW] stat failed: ${e}`);
+        }
+
+        let [ok, contents] = GLib.file_get_contents(path);
+        if (!ok) {
+            log(`[42EW] file_get_contents returned ok=false for ${path}`);
+            return null;
+        }
+        if (!contents || contents.length === 0) {
+            log(`[42EW] cookie file is empty: ${path}`);
+            return null;
+        }
+        // contents est un Uint8Array / byteArray
+        const str = imports.byteArray.toString(contents);
+        log(`[42EW] cookie file read: ${str.length} bytes`);
+        return str;
     } catch (e) {
         log(`[42EW] failed to read cookie file: ${e}`);
         return null;
