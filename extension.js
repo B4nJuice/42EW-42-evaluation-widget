@@ -56,7 +56,8 @@ function enable() {
 		if (token) {
 			const apiUrl = `https://api.intra.42.fr/v2/me`;
 			get_api_data(apiUrl, token, (data)=> {
-				Debug.logInfo(JSON.stringify(data));
+				console.log(JSON.stringify(data));
+				console.error(JSON.stringify(data));
 			});
 		}
 	});
