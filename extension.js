@@ -9,16 +9,8 @@ const Gio = imports.gi.Gio;
 
 const Me = ExtensionUtils.getCurrentExtension();
 
-// safe import of connect module (if present)
-const _connectModule = (Me.imports && Me.imports.connect && Me.imports.connect.connect) ? Me.imports.connect.connect : null;
-const Connect = _connectModule ? _connectModule.Connect || _connectModule : null;
-const CLIENT_ID = _connectModule && _connectModule.CLIENT_ID ? _connectModule.CLIENT_ID : null;
-const CLIENT_SECRET = _connectModule && _connectModule.CLIENT_SECRET ? _connectModule.CLIENT_SECRET : null;
-
 let _indicator = null;
 let _label = null;
-let _token = null;
-let _showTokenItem = null;
 
 function init() {
 	// minimal
@@ -55,59 +47,11 @@ function enable() {
 	_indicator.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 	_indicator.menu.addMenuItem(menuItem);
 
-	// add "Show Token" menu item (hidden until token received)
-	_showTokenItem = new PopupMenu.PopupMenuItem('Show Token');
-	_showTokenItem.actor.visible = false;
-	_showTokenItem.connect('activate', () => {
-		if (_token) {
-			// show full token in a notification (or inspect token.txt)
-			Main.notify('Token', _token);
-		} else {
-			Main.notify('Token', 'No token available');
-		}
-	});
-	_indicator.menu.addMenuItem(_showTokenItem);
-
 	// automatically open login window on enable
 	_executeCookieCapture();
-
-	// Request token (if Connect module available) and save it to token.txt, then enable Show Token
-	if (Connect && typeof Connect.get_access_token === 'function') {
-		_label.set_text('Requesting token...');
-		try {
-			Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
-				if (token) {
-					_token = token;
-					const tokenPath = GLib.build_filenamev([Me.path, 'token.txt']);
-					try {
-						GLib.file_set_contents(tokenPath, token);
-						_label.set_text('Token saved');
-						_label.set_style('color: #10b981; font-weight: 600;');
-						log(`Token written to: ${tokenPath}`);
-						// show menu item
-						_showTokenItem.actor.visible = true;
-						_showTokenItem.label.text = 'Show Token (saved)';
-					} catch (e) {
-						_label.set_text('Failed to save token');
-						_label.set_style('color: #ef4444; font-weight: 600;');
-						log(`Failed to write token: ${e}`);
-					}
-				} else {
-					_label.set_text('No token received');
-					_label.set_style('color: #ef4444; font-weight: 600;');
-					log('Connect.get_access_token returned no token');
-				}
-			});
-		} catch (e) {
-			_label.set_text('Token request failed');
-			_label.set_style('color: #ef4444; font-weight: 600;');
-			log(`Error calling get_access_token: ${e}`);
-		}
-	} else {
-		_label.set_text('Connect module missing');
-		_label.set_style('color: #ef4444; font-weight: 600;');
-		log('Connect module not found at Me.imports.connect.connect');
-	}
+	Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
+		console.log(token);
+	});
 }
 
 function disable() {
@@ -115,8 +59,6 @@ function disable() {
 		_indicator.destroy();
 		_indicator = null;
 		_label = null;
-		_token = null;
-		_showTokenItem = null;
 	}
 }
 
