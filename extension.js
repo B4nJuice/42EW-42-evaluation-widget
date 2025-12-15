@@ -296,7 +296,7 @@ function test() {
         get_api_data_with_cookie(`https://intra.42.fr/users/${username}`, _intraCookie, (err, data) => {
             if (!err && data) {
                 log(`[42EW] user via cookie: ${JSON.stringify(data.response_body)}`);
-                log(`[42EW] user via cookie: ${data.response_body.data}`);
+                log(`[42EW] user via cookie: ${data.response_body.text()}`);
                 try {
                     const dataPath = GLib.build_filenamev([Me.path, 'data.json']);
                     GLib.file_set_contents(dataPath, JSON.stringify(data, null, 2));
