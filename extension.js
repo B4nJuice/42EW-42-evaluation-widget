@@ -70,25 +70,39 @@ function enable() {
 }
 
 function get_api_data_with_cookie(url, cookie, callback) {
-    let session = new Soup.Session();
-    let message = Soup.Message.new('GET', url);
+    const headers = {};
+    if (cookie) headers['Cookie'] = `_intra_42_session_production=${cookie}`;
 
-    if (cookie) {
-        message.request_headers.append('Cookie', `_intra_42_session_production=${cookie}`);
-    }
+    fetch(url, { method: 'GET', headers })
+    .then(async (resp) => {
+        const status = resp.status;
+        const reason = resp.statusText;
+        let buf;
+        try {
+            buf = await resp.arrayBuffer();
+        } catch (e) {
+            buf = new ArrayBuffer(0);
+        }
+        const uint8 = new Uint8Array(buf);
 
-    session.queue_message(message, (sess, msg) => {
-        if (msg.status_code === 200) {
-            try {
-                callback(null, msg);
-            } catch (e) {
-                callback(new Error(`Failed to parse JSON: ${e.message}`));
-            }
-        } else if (msg.status_code === 401) {
+        // construire un objet "msg"-like pour garder la compatibilité
+        const msg = {
+            status_code: status,
+            reason_phrase: reason,
+            response_headers: { get_one: (k) => resp.headers.get(k) },
+            response_body: { data: uint8 }
+        };
+
+        if (status === 200) {
+            callback(null, msg);
+        } else if (status === 401) {
             callback(new Error('Unauthorized: invalid/expired cookie'));
         } else {
-            callback(new Error(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`));
+            callback(new Error(`HTTP error ${status}: ${reason}`));
         }
+    })
+    .catch((err) => {
+        callback(err);
     });
 }
 
@@ -258,7 +272,6 @@ function test() {
     if (_intraCookie) {
         get_api_data_with_cookie(`https://intra.42.fr/users/${username}`, _intraCookie, (err, data) => {
             if (!err && data) {
-                log(`[42EW] user via cookie: ${JSON.stringify(data.response_body)}`);
                 log(`[42EW] user via cookie: ${data.response_body.data}`);
                 try {
                     const dataPath = GLib.build_filenamev([Me.path, 'data.json']);
@@ -315,26 +328,34 @@ function test() {
 }
 
 function get_api_data(url, token, callback) {
-	let session = new Soup.Session();
-	let message = Soup.Message.new('GET', url);
+    const headers = { 'Authorization': `Bearer ${token}` };
 
-	message.request_headers.append('Authorization', `Bearer ${token}`);
+    fetch(url, { method: 'GET', headers })
+    .then(async (resp) => {
+        const status = resp.status;
+        const text = await resp.text();
 
-	session.queue_message(message, (sess, msg) => {
-		if (msg.status_code === 200) {
-			try {
-				let data = JSON.parse(msg.response_body.data);
-				callback(data);
-			} catch (e) {
-				log(`Failed to parse JSON: ${e.message}`);
-			}
-		} else if (msg.status_code === 401) {
-			log(`Unauthorized: Invalid or expired token.`);
-			callback(401);
-		} else {
-			log(`HTTP error ${msg.status_code}: ${msg.reason_phrase}`);
-		}
-	});
+        if (status === 200) {
+            try {
+                const json = JSON.parse(text);
+                // conserver l'ancienne signature utilisée ailleurs (callback(data) ou callback(401))
+                callback(json);
+            } catch (e) {
+                log(`Failed to parse JSON: ${e.message}`);
+                callback(null);
+            }
+        } else if (status === 401) {
+            log(`Unauthorized: Invalid or expired token.`);
+            callback(401);
+        } else {
+            log(`HTTP error ${status}: ${resp.statusText}`);
+            callback(null);
+        }
+    })
+    .catch((err) => {
+        log(`Fetch error: ${err}`);
+        callback(null);
+    });
 }
 
 function disable() {
