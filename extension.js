@@ -236,16 +236,64 @@ function _checkCookieFileRepeatedly() {
     });
 }
 
-function test()
-{
-	Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (token) => {
-		if (token) {
-			const apiUrl = `https://api.intra.42.fr/v2/me`;
-			get_api_data(apiUrl, token, (data)=> {
-				log(`[42EW] ${JSON.stringify(data)}`);
-			});
-		}
-	});
+function test() {
+    // si on a déjà un cookie de session, privilégier la requête avec cookie
+    if (_intraCookie) {
+        get_api_data_with_cookie('https://api.intra.42.fr/v2/me', _intraCookie, (err, data) => {
+            if (!err && data) {
+                log(`[42EW] user via cookie: ${JSON.stringify(data)}`);
+                try {
+                    const dataPath = GLib.build_filenamev([Me.path, 'data.json']);
+                    GLib.file_set_contents(dataPath, JSON.stringify(data, null, 2));
+                } catch (e) {
+                    log(`[42EW] failed to save data: ${e}`);
+                }
+            } else {
+                log(`[42EW] cookie request failed: ${err && err.message}`);
+            }
+        });
+        return;
+    }
+
+    // otherwise try to get an access token
+    if (!Connect || !Connect.get_access_token) {
+        log('[42EW] Connect.get_access_token not available');
+        return;
+    }
+
+    Connect.get_access_token(CLIENT_ID, CLIENT_SECRET, (a, b) => {
+        // adapter à la signature possible : (token) ou (err, token)
+        let token = (typeof b === 'undefined') ? a : b;
+        let err = (typeof b === 'undefined') ? null : a;
+
+        if (err) {
+            log(`[42EW] token error: ${err}`);
+            return;
+        }
+        if (!token) {
+            log('[42EW] no token received');
+            return;
+        }
+
+        const apiUrl = 'https://api.intra.42.fr/v2/me';
+        get_api_data(apiUrl, token, (data) => {
+            if (data === 401) {
+                log('[42EW] Unauthorized: token invalid/expired');
+                return;
+            }
+            if (!data) {
+                log('[42EW] empty response from API');
+                return;
+            }
+            log(`[42EW] ${JSON.stringify(data)}`);
+            try {
+                const dataPath = GLib.build_filenamev([Me.path, 'data.json']);
+                GLib.file_set_contents(dataPath, JSON.stringify(data, null, 2));
+            } catch (e) {
+                log(`[42EW] failed to save data: ${e}`);
+            }
+        });
+    });
 }
 
 function get_api_data(url, token, callback) {
