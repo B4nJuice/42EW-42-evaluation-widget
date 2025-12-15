@@ -250,9 +250,9 @@ function test() {
         get_api_data_with_cookie(`https://intra.42.fr/users/${username}`, _intraCookie, (err, data) => {
             if (!err && data) 
 				{
-					for (let i = 0; i < msg.response_headers.length; i++) {
-						let name = msg.response_headers.get_nth(i, null);
-						let value = msg.response_headers.get_one(name);
+					for (let i = 0; i < data.response_headers.length; i++) {
+						let name = data.response_headers.get_nth(i, null);
+						let value = data.response_headers.get_one(name);
 						log(`[42EW] [HEADER] ${name}: ${value}`);
 					}
                 log(`[42EW] user via cookie: ${JSON.stringify(data.response_body)}`);
