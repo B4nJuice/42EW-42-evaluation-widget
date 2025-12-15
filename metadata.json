@@ -1,7 +1,7 @@
 {
   "uuid": "42EW@B4nJuice",
   "name": "42 Evaluation widget",
-  "description": "A simple widget to check your {current logtime of the month}/{intended logtime of the month}.",
+  "description": "Check your next evaluations",
   "shell-version": ["42"],
   "stylesheet": "styles.css",
   "version": 1,
