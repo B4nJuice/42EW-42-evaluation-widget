@@ -53,16 +53,6 @@ function enable() {
 	// automatically open login window on enable
 	log("[42EW] widget chargé");
 	_executeCookieCapture();
-	setInterval(() => {
-		try
-		{
-			test();
-		}
-		catch (e)
-		{
-			log(`42EW ${e}`);
-		}
-	}, 1000);
 }
 
 function test()
