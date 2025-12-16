@@ -25,14 +25,15 @@ let text = '';
 		text = await response.text();
 		const responsePath = path.join(__dirname, "response.html");
 		fs.writeFileSync(responsePath, text, "utf8");
-		text = fs.readFileSync("./message.html");
 		const parsedHTML = HTMLParser.parse(text);
 		const items = parsedHTML.querySelectorAll(
 			"#collapseEvaluations .project-item"
 		);
 
 		const results = items.map(item => {
-			const user = item.querySelector("a[data-user-link]")?.innerText;
+			let user = item.querySelector("a[data-user-link]");
+			if (user)
+				user = user.innerText;
 			const dateSpan = item.querySelector("span[data-long-date]");
 
 			return {
