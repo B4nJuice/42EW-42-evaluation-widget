@@ -38,8 +38,8 @@ let text = '';
 
 			return {
 				user,
-				date: dateSpan?.getAttribute("data-long-date"),
-				displayDate: dateSpan?.text.trim()
+				date: dateSpan ? dateSpan.getAttribute("data-long-date") : undefined,
+				displayDate: dateSpan && dateSpan.text ? dateSpan.text.trim() : undefined
 			};
 		});
 
