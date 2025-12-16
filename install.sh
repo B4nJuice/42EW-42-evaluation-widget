@@ -52,11 +52,11 @@ if [ -f "$INSTALL_DIR/connect/capture_cookies.py" ]; then
 fi
 
 echo  "${YELLOW}Enabling extension: $EXTENSION_UUID${NC}"
-# try enable, do not fail the script if gnomextensions is missing
-if command -v gnomextensions >/dev/null 2>&1; then
-  gnomextensions enable "$EXTENSION_UUID" 2>/dev/null || echo  "${YELLOW}gnomextensions returned an error; you may need to restart GNOME Shell or log out/in.${NC}"
+# try enable, do not fail the script if gnome-extensions is missing
+if command -v gnome-extensions >/dev/null 2>&1; then
+  gnome-extensions enable "$EXTENSION_UUID" 2>/dev/null || echo  "${YELLOW}gnome-extensions returned an error; you may need to restart GNOME Shell or log out/in.${NC}"
 else
-  echo  "${YELLOW}Note: 'gnomextensions' command not found. Enable manually via GNOME Tweaks or install gnomextensions tooling.${NC}"
+  echo  "${YELLOW}Note: 'gnome-extensions' command not found. Enable manually via GNOME Tweaks or install gnome-extensions tooling.${NC}"
 fi
 
 echo ""
@@ -69,8 +69,8 @@ echo  "${YELLOW}Restarting GNOME Shell (X11) and enabling extension again...${NC
 killall -3 gnome-shell 2>/dev/null || true
 sleep 1
 
-if command -v gnomextensions >/dev/null 2>&1; then
-  gnomextensions enable "$EXTENSION_UUID" 2>/dev/null || true
+if command -v gnome-extensions >/dev/null 2>&1; then
+  gnome-extensions enable "$EXTENSION_UUID" 2>/dev/null || true
 fi
 
 echo  "${GREEN}Done. If the extension still doesn't appear, log out and log back in.${NC}"
