@@ -234,7 +234,6 @@ function _updateLabelFromEvaluations() {
         for (let i = 0; i < arr.length; i++) {
             const e = arr[i];
             if (!e || !e.date) continue;
-            // Remplacement: utilisation de _parseEvaluationDate au lieu de Date.parse direct
             const t = _parseEvaluationDate(e.date);
             if (isNaN(t)) continue;
             if (t < minTime) {
@@ -252,8 +251,8 @@ function _updateLabelFromEvaluations() {
         const user = minEntry.user || 'unknown';
 		if (diffMin < 0)
 		{
-			_label.set_text(`evaluation with "${user}" ${diffMin} min ago !`);
-        	_label.set_style('color: #b91010ff; font-weight: 600;');
+			_label.set_text(`evaluation with "${user}" ${-diffMin} min ago !`);
+        	_label.set_style('color: #b91010; font-weight: 600;');
 		}
 		else
 		{
