@@ -55,7 +55,7 @@ let text = '';
 		}
 
 		results.forEach(element => {
-			if (!element.user && !element.date) return;
+			if (!element.user || !element.date) return;
 
 			const exists = evaluationJson.some(e =>
 				e.user === element.user && e.date === element.date
