@@ -1,3 +1,4 @@
+var HTMLParser = require('node-html-parser');
 import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
@@ -24,6 +25,8 @@ try {
 	text = await response.text();
 	const responsePath = path.join(__dirname, "response.html");
 	fs.writeFileSync(responsePath, text, "utf8");
+	const parsedHTML = HTMLParser.parse(text);
+	console.log(parsedHTML.getElementById("collapseEvaluations"));
 } catch (e) {
 	console.log("[42EW] Fetch error: " + e.message);
 }
