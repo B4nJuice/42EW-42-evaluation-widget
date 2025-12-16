@@ -45,31 +45,19 @@ let text = '';
 		});
 
 		const evalPath = path.join(__dirname, "evaluations.json");
-		let evaluationJson = [];
-		if (fs.existsSync(evalPath)) {
-			try {
-				const raw = fs.readFileSync(evalPath, "utf8");
-				evaluationJson = JSON.parse(raw) || [];
-				if (!Array.isArray(evaluationJson)) evaluationJson = [];
-			} catch (err) {
-				evaluationJson = [];
-			}
-		}
 
+		const seen = {};
+		const newEvaluations = [];
 		results.forEach(element => {
 			if (!element.user || !element.date) return;
-
-			const exists = evaluationJson.some(e =>
-				e.user === element.user && e.date === element.date
-			);
-
-			if (!exists) {
-				evaluationJson.push(element);
+			const key = `${element.user}||${element.date}`;
+			if (!seen[key]) {
+				seen[key] = true;
+				newEvaluations.push(element);
 			}
 		});
 
-		// write back formatted JSON
-		fs.writeFileSync(evalPath, JSON.stringify(evaluationJson, null, 2), "utf8");
+		fs.writeFileSync(evalPath, JSON.stringify(newEvaluations, null, 2), "utf8");
 
 	} catch (e) {
 		console.log("[42EW] Fetch error: " + e.message);

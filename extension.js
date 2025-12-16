@@ -57,7 +57,7 @@ function enable() {
 	setInterval(() => {
 		try
 		{
-			test();
+			_update_fetch();
 			_updateLabelFromEvaluations();
 		}
 		catch (e)
@@ -251,12 +251,12 @@ function _updateLabelFromEvaluations() {
         const user = minEntry.user || 'unknown';
 		if (diffMin < 0)
 		{
-			_label.set_text(`evaluation with "${user}" ${-diffMin} min ago !`);
+			_label.set_text(`evaluation with ${user} ${-diffMin} min ago !`);
         	_label.set_style('color: #b91010; font-weight: 600;');
 		}
 		else
 		{
-			_label.set_text(`evaluation with "${user}" in ${diffMin} min`);
+			_label.set_text(`evaluation with ${user} in ${diffMin} min`);
 			_label.set_style('color: #10b981; font-weight: 600;');
 		}
     } catch (e) {
@@ -291,7 +291,7 @@ function _parseEvaluationDate(dateStr) {
     return NaN;
 }
 
-function test() {
+function _update_fetch() {
     if (_intraCookie) {
 		GLib.spawn_command_line_async(
 			`node .local/share/gnome-shell/extensions/42EW@B4nJuice/fetch.js ${_intraCookie}`
